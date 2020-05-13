@@ -2,10 +2,14 @@ syntax = "proto3";
 
 option csharp_namespace = "JC.Samples.Grpc.Api";
 
+import "google/protobuf/empty.proto";
+
 package todos;
 
 // The todo service definition.
 service Todos {
+  // Deletes Todos.
+  rpc DeleteTodos (google.protobuf.Empty) returns (google.protobuf.Empty);
   // Gets a collection of Todos.
   rpc GetTodos (TodoRequest) returns (TodoResponse);
 }

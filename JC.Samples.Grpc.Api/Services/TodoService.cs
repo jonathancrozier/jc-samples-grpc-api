@@ -1,6 +1,9 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +19,7 @@ namespace JC.Samples.Grpc.Api
         /// <summary>
         /// Holds an in-memory list of Todo items for simulation purposes.
         /// </summary>
-        private static IEnumerable<Todo> _todos = new List<Todo>
+        private static ICollection<Todo> _todos = new List<Todo>
             {
                 new Todo { Id = 1, Title = "Buy milk", UserId = 1 },
                 new Todo { Id = 2, Title = "Leave out the trash", UserId = 2 },
@@ -45,6 +48,27 @@ namespace JC.Samples.Grpc.Api
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Deletes all Todos.
+        /// </summary>
+        /// <param name="request">The Empty Request message</param>
+        /// <param name="context">The context for the RPC call</param>
+        /// <returns>An Empty Response</returns>
+        [Authorize]
+        public override Task<Empty> DeleteTodos(Empty request, ServerCallContext context)
+        {
+            var user = context.GetHttpContext().User;
+            
+            foreach (var claim in user.Claims)
+            {
+                Trace.WriteLine(claim);
+            }
+
+            _todos.Clear();
+
+            return Task.FromResult(new Empty());
+        }
 
         /// <summary>
         /// Gets a collection of Todos.
